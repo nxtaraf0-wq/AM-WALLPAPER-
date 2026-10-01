@@ -1,0 +1,6 @@
+{
+  "name": "Anime Wallpaper Premium - ARAF STUDIO",
+  "description": "Premium glassmorphism anime wallpaper application created by ARAF STUDIO & ARAF GROUP OF INDUSTRIES. Features 4K wallpapers, categories, favorites, and detailed ARAF ecosystem presentation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
