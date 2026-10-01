@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, ArrowUp, Info } from 'lucide-react';
+import { Search, Filter, ArrowUp, Info, Palette, Cake, PartyPopper } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sidebar } from './components/Sidebar';
 import { BottomNav } from './components/BottomNav';
@@ -9,16 +9,38 @@ import { SettingsModal } from './components/SettingsModal';
 import { AboutModal } from './components/AboutModal';
 import { SplashScreen } from './components/SplashScreen';
 import { ToastProvider } from './components/ToastProvider';
+import { BirthdayCampaignBanner } from './components/BirthdayCampaignBanner';
+import { BirthdayConfettiOverlay } from './components/BirthdayConfettiOverlay';
+import { BirthdayBannersGalleryModal } from './components/BirthdayBannersGalleryModal';
+import { ThemeStudioModal } from './components/ThemeStudioModal';
+import { BirthdayWishesModal } from './components/BirthdayWishesModal';
+import { ALL_APP_THEMES } from './lib/birthdayCampaignData';
 import { useAppStore } from './store';
 import { cn } from './lib/utils';
 import { Category } from './types';
 
 export default function App() {
-  const { theme, searchQuery, setSearchQuery, activeCategory, setActiveCategory } = useAppStore();
+  const { 
+    theme, 
+    searchQuery, 
+    setSearchQuery, 
+    activeCategory, 
+    setActiveCategory, 
+    activeThemeId,
+    isConfettiActive,
+    toggleConfetti
+  } = useAppStore();
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [isThemesOpen, setIsThemesOpen] = useState(false);
+  const [isBannersOpen, setIsBannersOpen] = useState(false);
+  const [isWishesOpen, setIsWishesOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Find active theme styling
+  const currentAppTheme = ALL_APP_THEMES.find((t) => t.id === activeThemeId) || ALL_APP_THEMES[0];
 
   // Handle scroll for "scroll to top" button
   useEffect(() => {
@@ -56,19 +78,27 @@ export default function App() {
   ];
 
   return (
-    <div className={cn("min-h-screen bg-zinc-950 text-zinc-50 flex font-sans selection:bg-indigo-500/30", theme === "light" && "light-theme-not-implemented-yet")}>
+    <div className={cn(
+      "min-h-screen bg-zinc-950 text-zinc-50 flex font-sans selection:bg-indigo-500/30 relative",
+      currentAppTheme && `bg-gradient-to-br ${currentAppTheme.bgGradient}`,
+      theme === "light" && "light-theme-not-implemented-yet"
+    )}>
       <SplashScreen />
+      <BirthdayConfettiOverlay />
       
       <Sidebar 
         onOpenSettings={() => setIsSettingsOpen(true)} 
         onOpenAbout={() => setIsAboutOpen(true)}
+        onOpenThemesModal={() => setIsThemesOpen(true)}
+        onOpenBannersModal={() => setIsBannersOpen(true)}
+        onOpenWishesModal={() => setIsWishesOpen(true)}
       />
       
       <main className="flex-1 relative flex flex-col h-screen overflow-hidden">
         {/* Header / Search Area */}
         <header className="sticky top-0 z-30 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5 p-4 md:p-6 shrink-0">
           <div className="mx-auto max-w-7xl flex flex-col gap-3">
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2.5 sm:gap-3">
               <div className="relative flex-1 group">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500 transition-colors group-focus-within:text-indigo-400" />
                 <input
@@ -88,16 +118,50 @@ export default function App() {
                 )}
               </div>
 
-              {/* Quick About ARAF button in header for all devices */}
+              {/* Theme Studio Button */}
+              <button
+                onClick={() => setIsThemesOpen(true)}
+                className="h-12 px-3 sm:px-3.5 flex items-center gap-2 rounded-2xl bg-purple-500/10 border border-purple-500/25 text-purple-300 hover:bg-purple-500/20 hover:text-white transition-all text-xs font-bold shrink-0"
+                title="100 Themes Studio"
+              >
+                <Palette className="h-4 w-4 text-purple-400" />
+                <span className="hidden sm:inline">100 Themes</span>
+              </button>
+
+              {/* 100 UI Banners Button */}
+              <button
+                onClick={() => setIsBannersOpen(true)}
+                className="h-12 px-3 sm:px-3.5 flex items-center gap-2 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-300 hover:bg-amber-500/20 hover:text-white transition-all text-xs font-bold shrink-0"
+                title="100 Birthday UI Banner Designs"
+              >
+                <Cake className="h-4 w-4 text-amber-400 animate-pulse" />
+                <span className="hidden sm:inline">100 Banners</span>
+              </button>
+
+              {/* Confetti Toggle Button */}
+              <button
+                onClick={toggleConfetti}
+                className={cn(
+                  "h-12 w-12 flex items-center justify-center rounded-2xl border transition-colors shrink-0",
+                  isConfettiActive 
+                    ? "bg-rose-500/20 border-rose-500/40 text-rose-300 shadow-md shadow-rose-500/10" 
+                    : "bg-zinc-900/50 border-white/10 text-zinc-500 hover:text-zinc-300"
+                )}
+                title={isConfettiActive ? "Stop Confetti" : "Shower Confetti"}
+              >
+                <PartyPopper className="h-5 w-5" />
+              </button>
+
+              {/* Quick About ARAF button */}
               <button
                 onClick={() => setIsAboutOpen(true)}
-                className="h-12 px-3.5 flex items-center gap-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/20 hover:text-white transition-all text-xs font-semibold shrink-0"
+                className="h-12 px-3.5 hidden lg:flex items-center gap-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/20 hover:text-white transition-all text-xs font-semibold shrink-0"
                 title="About ARAF Studio & Group of Industries"
               >
                 <div className="h-6 w-6 rounded-lg bg-indigo-500/30 flex items-center justify-center font-bold text-[10px] text-white">
                   AR
                 </div>
-                <span className="hidden sm:inline">About ARAF</span>
+                <span>About ARAF</span>
               </button>
 
               <button 
@@ -155,6 +219,14 @@ export default function App() {
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6" id="scroll-container">
           <div className="mx-auto max-w-7xl h-full">
+            {/* 100 UI Designs Birthday Campaign Banner */}
+            <BirthdayCampaignBanner 
+              onOpenThemesModal={() => setIsThemesOpen(true)}
+              onOpenBannersModal={() => setIsBannersOpen(true)}
+              onOpenWishesModal={() => setIsWishesOpen(true)}
+            />
+
+            {/* 1,000,000+ Wallpapers Grid */}
             <WallpaperGrid />
           </div>
         </div>
@@ -163,18 +235,40 @@ export default function App() {
       <BottomNav 
         onOpenSettings={() => setIsSettingsOpen(true)} 
         onOpenAbout={() => setIsAboutOpen(true)}
+        onOpenThemesModal={() => setIsThemesOpen(true)}
       />
       
       <WallpaperModal />
+      
+      {/* 100 UI Banners Gallery Modal */}
+      <BirthdayBannersGalleryModal
+        isOpen={isBannersOpen}
+        onClose={() => setIsBannersOpen(false)}
+      />
+
+      {/* 100 Themes Studio Modal (15 Birthday + 45 Anime + 25 Luxury + 15 Clean) */}
+      <ThemeStudioModal
+        isOpen={isThemesOpen}
+        onClose={() => setIsThemesOpen(false)}
+      />
+
+      {/* Birthday Wishes Wall & Submission Modal */}
+      <BirthdayWishesModal
+        isOpen={isWishesOpen}
+        onClose={() => setIsWishesOpen(false)}
+      />
+
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
         onOpenAbout={() => setIsAboutOpen(true)}
       />
+      
       <AboutModal 
         isOpen={isAboutOpen} 
         onClose={() => setIsAboutOpen(false)} 
       />
+      
       <ToastProvider />
 
       {/* Floating Scroll to Top */}

@@ -41,6 +41,20 @@ interface AppState {
 
   clearCache: () => void;
 
+  // Birthday Campaign & 100-Theme System
+  activeThemeId: string;
+  setActiveThemeId: (id: string) => void;
+  activeBannerIndex: number;
+  setActiveBannerIndex: (index: number) => void;
+  bannerIntervalSeconds: number; // 60, 120, 180 seconds
+  setBannerIntervalSeconds: (seconds: number) => void;
+  isConfettiActive: boolean;
+  toggleConfetti: () => void;
+  isBannerAutoPlay: boolean;
+  toggleBannerAutoPlay: () => void;
+  birthdayWishes: { id: string; name: string; message: string; date: string }[];
+  addBirthdayWish: (name: string, message: string) => void;
+
   toasts: Toast[];
   addToast: (message: string, type?: "success" | "info" | "error") => void;
   removeToast: (id: string) => void;
@@ -129,6 +143,44 @@ export const useAppStore = create<AppState>()(
         };
       }),
 
+      // Birthday Campaign & 100 Themes Implementation
+      activeThemeId: "bday-royal-gold",
+      setActiveThemeId: (id) => set({ activeThemeId: id }),
+
+      activeBannerIndex: 0,
+      setActiveBannerIndex: (index) => set({ activeBannerIndex: (index + 100) % 100 }),
+
+      bannerIntervalSeconds: 60, // 1 minute default, switchable to 120s (2 min) or 180s (3 min)
+      setBannerIntervalSeconds: (seconds) => set({ bannerIntervalSeconds: seconds }),
+
+      isConfettiActive: true,
+      toggleConfetti: () => set((s) => ({ isConfettiActive: !s.isConfettiActive })),
+
+      isBannerAutoPlay: true,
+      toggleBannerAutoPlay: () => set((s) => ({ isBannerAutoPlay: !s.isBannerAutoPlay })),
+
+      birthdayWishes: [
+        { id: "w-1", name: "ARAF STUDIO Team", message: "Happy Birthday Lamim Editz! Keep creating legendary masterpieces!", date: "Oct 7" },
+        { id: "w-2", name: "AM Wallpaper Community", message: "Wishing you infinite success, health, and joy! 🎂🎉", date: "Oct 7" },
+        { id: "w-3", name: "Anime & VFX Fans", message: "To the greatest editor and creator, Happy Birthday! 👑✨", date: "Oct 7" }
+      ],
+      addBirthdayWish: (name, message) => set((s) => {
+        const newWish = {
+          id: `wish-${Date.now()}`,
+          name: name.trim() || "Anonymous Fan",
+          message: message.trim(),
+          date: "Oct 7"
+        };
+        const toastId = Math.random().toString(36).substring(2, 9);
+        setTimeout(() => {
+          set((state) => ({ toasts: state.toasts.filter(t => t.id !== toastId) }));
+        }, 3000);
+        return {
+          birthdayWishes: [newWish, ...s.birthdayWishes],
+          toasts: [...s.toasts, { id: toastId, message: "Birthday Wish posted for LAMIM EDITZ! 🎂", type: "success" }]
+        };
+      }),
+
       toasts: [],
       addToast: (message, type = "info") => set((state) => {
         const id = Math.random().toString(36).substring(2, 9);
@@ -145,7 +197,11 @@ export const useAppStore = create<AppState>()(
         theme: state.theme, 
         favorites: state.favorites,
         language: state.language,
-        quality: state.quality
+        quality: state.quality,
+        activeThemeId: state.activeThemeId,
+        activeBannerIndex: state.activeBannerIndex,
+        bannerIntervalSeconds: state.bannerIntervalSeconds,
+        birthdayWishes: state.birthdayWishes
       }),
     }
   )

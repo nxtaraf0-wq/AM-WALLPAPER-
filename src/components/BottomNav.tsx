@@ -1,14 +1,16 @@
 import React from "react";
-import { Home, Compass, Heart, Settings, Info } from "lucide-react";
+import { Home, Compass, Heart, Settings, Info, Palette } from "lucide-react";
 import { useAppStore } from "../store";
 import { cn } from "../lib/utils";
 
 export function BottomNav({ 
   onOpenSettings,
-  onOpenAbout
+  onOpenAbout,
+  onOpenThemesModal
 }: { 
   onOpenSettings: () => void;
   onOpenAbout?: () => void;
+  onOpenThemesModal?: () => void;
 }) {
   const { activeCategory, setActiveCategory } = useAppStore();
 
@@ -39,6 +41,17 @@ export function BottomNav({
             </button>
           );
         })}
+        {onOpenThemesModal && (
+          <button
+            onClick={onOpenThemesModal}
+            className="flex flex-col items-center gap-1"
+            title="100 Themes Studio"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl text-amber-400 bg-amber-500/10 border border-amber-500/20 transition-all duration-300 active:scale-95">
+              <Palette className="h-5 w-5" />
+            </div>
+          </button>
+        )}
         {onOpenAbout && (
           <button
             onClick={onOpenAbout}
